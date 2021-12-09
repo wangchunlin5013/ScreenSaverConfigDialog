@@ -1,8 +1,7 @@
 
-src/environments.h
-
-CMakeLists.txt.user
+*.txt.user
+*.qm
 
 build-ut/
 
-*.qm
+
