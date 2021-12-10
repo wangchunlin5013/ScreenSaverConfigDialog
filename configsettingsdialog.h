@@ -45,6 +45,7 @@ public:
 private:
     QString configPath();
     QString jsonPath();
+    QString translatePath();
 
 public:
     static QPair<QWidget*, QWidget*> createSelectWorkPathWidget(QObject* opt);

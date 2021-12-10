@@ -28,7 +28,7 @@
 #include <DFileDialog>
 
 #include <QStandardPaths>
-#include <QApplication>
+#include <DApplication>
 #include <QDebug>
 #include <QVBoxLayout>
 
@@ -64,6 +64,12 @@ void ConfigSettingsDialog::setScreenSaverName(const QString &name)
 {
     if (name == m_screenSaverName)
         return;
+
+    // 加载翻译
+    QString appName = qApp->applicationName();
+    qApp->setApplicationName(name);
+    qApp->loadTranslator();
+    qApp->setApplicationName(appName);
 
     m_screenSaverName = name;
 
@@ -112,6 +118,21 @@ QString ConfigSettingsDialog::jsonPath()
             + "/" + "deepin-screensaver"
             + "/" + m_screenSaverName
             + "/" + m_screenSaverName + ".json";
+
+    return path;
+}
+
+QString ConfigSettingsDialog::translatePath()
+{
+    auto paths = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
+    Q_ASSERT(!paths.isEmpty());
+
+    QString path = paths.first();
+    path = path
+            + "/" + QApplication::organizationName()
+            + "/" + "deepin-screensaver"
+            + "/" + m_screenSaverName
+            + "/" + m_screenSaverName + "_zh_CN.qm";    // todo:根据系统设置进行加载对应的语言
 
     return path;
 }
