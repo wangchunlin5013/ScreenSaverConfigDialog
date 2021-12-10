@@ -55,8 +55,7 @@ ConfigWidget::ConfigWidget(QWidget *parent)
         QString filePath(path + screen + "/" + screen + ".json");
         QFile jsonFile(filePath);
         if (!jsonFile.exists()) {
-            qDebug() << "Warning:" << screen << " not found json";
-            qDebug() << screen << jsonFile.exists() << jsonFile.isReadable();
+            qDebug() << "notes:" << screen << " not found json";
             screenSaverList.removeOne(screen);
         }
     }
@@ -69,7 +68,6 @@ ConfigWidget::ConfigWidget(QWidget *parent)
     if (Q_LIKELY(index.isValid())) {
         m_listView->setCurrentIndex(index);
     }
-
 }
 
 ConfigWidget::~ConfigWidget()

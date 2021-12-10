@@ -122,21 +122,6 @@ QString ConfigSettingsDialog::jsonPath()
     return path;
 }
 
-QString ConfigSettingsDialog::translatePath()
-{
-    auto paths = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
-    Q_ASSERT(!paths.isEmpty());
-
-    QString path = paths.first();
-    path = path
-            + "/" + QApplication::organizationName()
-            + "/" + "deepin-screensaver"
-            + "/" + m_screenSaverName
-            + "/" + m_screenSaverName + "_zh_CN.qm";    // todo:根据系统设置进行加载对应的语言
-
-    return path;
-}
-
 QPair<QWidget *, QWidget *> ConfigSettingsDialog::createSelectWorkPathWidget(QObject *opt)
 {
     auto option = qobject_cast<Dtk::Core::DSettingsOption *>(opt);
