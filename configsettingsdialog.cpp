@@ -31,6 +31,8 @@
 #include <DApplication>
 #include <QDebug>
 #include <QVBoxLayout>
+#include <QFileInfo>
+#include <QDir>
 
 DWIDGET_USE_NAMESPACE
 DCORE_USE_NAMESPACE
@@ -73,7 +75,23 @@ void ConfigSettingsDialog::setScreenSaverName(const QString &name)
 
     m_screenSaverName = name;
 
-    QString path = configPath();
+    QString path = configLocationPath();
+    QFileInfo confFile(path);
+
+    // 本地配置文件不存在
+    if (!confFile.exists()) {
+
+        QDir confDir = confFile.absoluteDir();
+        if (!confDir.exists())
+            confDir.mkpath(confDir.absolutePath());
+
+        // 系统配置文件存在，则拷贝。否则不做处理，后面设置值时会自动创建
+        QString pathGeneral = configGeneralPath();
+        QFile confGeneralFile(pathGeneral);
+        if (confGeneralFile.exists()) {
+            confGeneralFile.copy(path);
+        }
+    }
     m_backend.reset(new QSettingBackend(path, this));
 
     path = jsonPath();
@@ -92,7 +110,7 @@ QString ConfigSettingsDialog::screenSaverName() const
     return m_screenSaverName;
 }
 
-QString ConfigSettingsDialog::configPath()
+QString ConfigSettingsDialog::configLocationPath()
 {
     auto paths = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
     Q_ASSERT(!paths.isEmpty());
@@ -107,14 +125,21 @@ QString ConfigSettingsDialog::configPath()
     return path;
 }
 
+QString ConfigSettingsDialog::configGeneralPath()
+{
+    QString path("/etc");
+    path = path
+            + "/" + "deepin-screensaver"
+            + "/" + m_screenSaverName
+            + "/" + m_screenSaverName + ".conf";
+
+    return path;
+}
+
 QString ConfigSettingsDialog::jsonPath()
 {
-    auto paths = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
-    Q_ASSERT(!paths.isEmpty());
-
-    QString path = paths.first();
+    QString path("/etc");
     path = path
-            + "/" + QApplication::organizationName()
             + "/" + "deepin-screensaver"
             + "/" + m_screenSaverName
             + "/" + m_screenSaverName + ".json";

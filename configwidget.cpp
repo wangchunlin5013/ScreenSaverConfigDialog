@@ -28,6 +28,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 
 DWIDGET_USE_NAMESPACE
 
@@ -43,19 +44,20 @@ ConfigWidget::ConfigWidget(QWidget *parent)
 
     setLayout(m_hLayout.get());
 
-    QString path = workPath();
+    QString path = programPath();
 
     QDir workDir(path);
 
     // 添加数据
-    QStringList screenSaverList = workDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    QStringList screenSaverList = workDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
 
-    // 确保存在界面配置文件
+    // 确保界面配置文件存在且可读
     for (auto screen : screenSaverList) {
-        QString filePath(path + screen + "/" + screen + ".json");
-        QFile jsonFile(filePath);
-        if (!jsonFile.exists()) {
-            qDebug() << "notes:" << screen << " not found json";
+        QString jsonFilePath = jsonPath();
+        jsonFilePath += screen + "/" + screen + ".json";
+        QFileInfo jsonFile(jsonFilePath);
+        if (!jsonFile.exists() || !jsonFile.isReadable()) {
+            qDebug() << "notes:" << screen << " json is " << jsonFile.exists() << jsonFile.isReadable();
             screenSaverList.removeOne(screen);
         }
     }
@@ -86,15 +88,16 @@ void ConfigWidget::onSelectScreenSaverChanged(const QString &name)
     m_settingDialog->setScreenSaverName(name);
 }
 
-QString ConfigWidget::workPath()
+QString ConfigWidget::programPath()
 {
-    auto paths = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
-    Q_ASSERT(!paths.isEmpty());
+    QString path("/usr/lib/deepin-screensaver/modules");
 
-    QString path = paths.first();
-    path = path
-            + "/" + QApplication::organizationName()
-            + "/" + "deepin-screensaver/";
+    return path;
+}
+
+QString ConfigWidget::jsonPath()
+{
+    QString path("/etc/deepin-screensaver/");
 
     return path;
 }

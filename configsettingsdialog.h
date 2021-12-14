@@ -43,7 +43,8 @@ public:
     QString screenSaverName() const;
 
 private:
-    QString configPath();
+    QString configLocationPath();
+    QString configGeneralPath();
     QString jsonPath();
 
 public:
