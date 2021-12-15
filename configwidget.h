@@ -40,7 +40,8 @@ public slots:
     void onSelectScreenSaverChanged(const QString &name);
 
 private:
-    QString workPath();
+    QString programPath();
+    QString jsonPath();
 
 private:
     QScopedPointer<ScreenSaverListView> m_listView;
