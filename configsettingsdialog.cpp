@@ -54,6 +54,7 @@ ConfigSettingsDialog::ConfigSettingsDialog(QWidget *parent)
         layout()->removeWidget(bar);
     }
 
+    // 注册新的自定义控件（路径选择控件）
     widgetFactory()->registerWidget("selectDir", &ConfigSettingsDialog::createSelectWorkPathWidget);
 }
 
@@ -151,33 +152,41 @@ QPair<QWidget *, QWidget *> ConfigSettingsDialog::createSelectWorkPathWidget(QOb
 {
     auto option = qobject_cast<Dtk::Core::DSettingsOption *>(opt);
 
+    // 注册的路径选择控件
     ConfigSettingsDialog::m_frame = new DFrame;
+    // 控件内部的路径文本显示标签
     ConfigSettingsDialog::m_pathLabel = new DLabel(ConfigSettingsDialog::m_frame);
+    // 控件内部的路径选择按钮
     ConfigSettingsDialog::m_btn = new DPushButton(tr("Select"), ConfigSettingsDialog::m_frame);
 
+    // 路径为中间截断显示
     ConfigSettingsDialog::m_pathLabel->setElideMode(Qt::ElideMiddle);
     ConfigSettingsDialog::m_pathLabel->setText(option->value().toString());
     ConfigSettingsDialog::m_pathLabel->setToolTip(option->value().toString());
 
+    // 控件内的布局
     QHBoxLayout *layout = new QHBoxLayout(ConfigSettingsDialog::m_frame);
     layout->addWidget(ConfigSettingsDialog::m_btn);
     layout->addWidget(ConfigSettingsDialog::m_pathLabel);
     layout->addStretch();
 
     connect(ConfigSettingsDialog::m_btn, &DPushButton::clicked, option, [=](){
+        // 获取已有配置的值进行显示
         QString currentPath = ConfigSettingsDialog::m_pathLabel->text();
         if (currentPath.isEmpty())
-            currentPath = "/home";
+            currentPath = "/home";  // 当前配置值为空时，重置为默认路径
 
         QString selectPath = DFileDialog::getExistingDirectory(nullptr, tr("Open Directory"), currentPath,
                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         if (selectPath.isEmpty())
             return ;
 
+        // 更新选择的值进行保存
         option->setValue(selectPath);
     });
 
     connect(option, &DSettingsOption::valueChanged, ConfigSettingsDialog::m_frame, [&](QVariant value) {
+        // 配置的值更新后，同步界面显示信息
         QString currentPath = value.toString();
         ConfigSettingsDialog::m_pathLabel->setText(currentPath);
         ConfigSettingsDialog::m_pathLabel->setToolTip(currentPath);
